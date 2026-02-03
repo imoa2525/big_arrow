@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 # ページ設定（タイトルやアイコン、レイアウトを広めに）
-st.set_page_config(page_title="ELDEN RING BINGO (7x7)", layout="wide")
+st.set_page_config(page_title="ナイトレイン戦技ビンゴ", layout="wide")
 
 # --- CSS設定（7x7用にボタンを少しコンパクトに調整） ---
 st.markdown("""
@@ -169,3 +169,4 @@ for r in range(7):
 # 脚注
 st.markdown("---")
 st.caption(f"設定: 中心={rule_center} / 内周={rule_inner} / 中周={rule_middle} / 外周={rule_outer}")
+
