@@ -1,10 +1,10 @@
 import streamlit as st
 import random
 
-# ページ設定（タイトルやアイコン、レイアウトを広めに）
-st.set_page_config(page_title="ELDEN RING BINGO (7x7)", layout="wide")
+#setting the page layout
+st.set_page_config(page_title="ナイトレイン戦技ビンゴ", layout="wide")
 
-# --- CSS設定（7x7用にボタンを少しコンパクトに調整） ---
+#setting custom CSS←AIに投げたからよくわからん
 st.markdown("""
 <style>
     /* ボタンのスタイル調整 */
@@ -28,7 +28,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 1. データ定義（ファイルの内容を埋め込み） ---
+#set data for skill lists
 
 SKILL_LISTS = {
     "ストームルーラー": ["ストームルーラー"],
@@ -71,24 +71,18 @@ SKILL_LISTS = {
     ]
 }
 
-# 全リスト統合版も作成
+# set all skill list
 SKILL_LISTS["ランダム(全種)"] = SKILL_LISTS["初期戦技"] + SKILL_LISTS["汎用戦技"] + SKILL_LISTS["固有戦技"]
 
-# --- 2. 設定サイドバー ---
+#setting sidebar
 st.sidebar.title("設定 (7x7)")
 
-# エリアごとの設定
-# 距離0: 中心(1マス)
-# 距離1: 内周(8マス)
-# 距離2: 中周(16マス)
-# 距離3: 外周(24マス)
+rule_center = st.sidebar.selectbox("中心 (1マス)", list(SKILL_LISTS.keys()), index=0) 
+rule_inner  = st.sidebar.selectbox("内周 (8マス)", list(SKILL_LISTS.keys()), index=1) 
+rule_middle = st.sidebar.selectbox("中周 (16マス)", list(SKILL_LISTS.keys()), index=2)
+rule_outer  = st.sidebar.selectbox("外周 (24マス)", list(SKILL_LISTS.keys()), index=3) 
 
-rule_center = st.sidebar.selectbox("中心 (1マス)", list(SKILL_LISTS.keys()), index=0) # デフォルト: ストームルーラー
-rule_inner  = st.sidebar.selectbox("内周 (8マス)", list(SKILL_LISTS.keys()), index=3) # デフォルト: 固有
-rule_middle = st.sidebar.selectbox("中周 (16マス)", list(SKILL_LISTS.keys()), index=2) # デフォルト: 汎用
-rule_outer  = st.sidebar.selectbox("外周 (24マス)", list(SKILL_LISTS.keys()), index=1) # デフォルト: 初期
-
-# ルール辞書を作成
+#setting area rules
 zone_rules = {
     0: rule_center,
     1: rule_inner,
@@ -96,61 +90,57 @@ zone_rules = {
     3: rule_outer
 }
 
-# --- 3. ロジック関数 ---
+#make bingo card
 
 def generate_bingo_card_7x7():
-    # 7x7の空カードを作成
+    #create brank cards
     card = [[None for _ in range(7)] for _ in range(7)]
     
-    # 距離ごとの座標リストを作成
+    #lists of distance from center
     zones = {0: [], 1: [], 2: [], 3: []}
     
     for r in range(7):
         for c in range(7):
-            # 中心(3,3)からの距離計算
             dist = max(abs(r - 3), abs(c - 3))
             zones[dist].append((r, c))
             
-    # 各ゾーンごとに抽選して埋める
+    #fill skills
     for dist, coords in zones.items():
         list_name = zone_rules[dist]
         source_list = SKILL_LISTS[list_name]
         count_needed = len(coords)
         
-        # リストの要素数が足りるかチェック
+        #check number of skills available
         if len(source_list) >= count_needed:
-            # 足りるなら重複なしで抽出 (sample)
             selected_skills = random.sample(source_list, count_needed)
         else:
-            # 足りない場合（例:外周にストームルーラー）は、あるだけ全部＋不足分をランダム重複 (choices)
-            # ※ユーザーへの配慮として、エラーで止めずに埋める
-            selected_skills = source_list[:] # コピー
+            #all skills + random picks to fill
+            selected_skills = source_list[:]
             remainder = count_needed - len(source_list)
             selected_skills += random.choices(source_list, k=remainder)
             random.shuffle(selected_skills)
             
-        # 座標に割り当て
+        #assign skills to card
         for (r, c), skill in zip(coords, selected_skills):
             card[r][c] = {"name": skill, "checked": False}
             
     return card
 
-# --- 4. メイン画面 ---
+# Title
 
-st.title("ELDEN RING BINGO (7x7)")
+st.title("ナイトレイン戦技ビンゴ")
 
-# セッション管理
 if "bingo_card" not in st.session_state:
     st.session_state.bingo_card = generate_bingo_card_7x7()
 
-# 生成ボタン
+#setting reset button
 if st.sidebar.button("ビンゴを生成/リセット", type="primary"):
     st.session_state.bingo_card = generate_bingo_card_7x7()
     st.rerun()
 
-# グリッド描画 (7x7)
+#generate display of card
 for r in range(7):
-    cols = st.columns(7) # 7列
+    cols = st.columns(7)
     for c in range(7):
         cell = st.session_state.bingo_card[r][c]
         
@@ -161,11 +151,11 @@ for r in range(7):
             label = f"\n{cell['name']}"
             kind = "secondary"
 
-        # ボタンのキーをユニークにする
+        #button for each cell
         if cols[c].button(label, key=f"btn_{r}_{c}", use_container_width=True, type=kind):
             st.session_state.bingo_card[r][c]["checked"] = not cell["checked"]
             st.rerun()
 
-# 脚注
+#display settings
 st.markdown("---")
 st.caption(f"設定: 中心={rule_center} / 内周={rule_inner} / 中周={rule_middle} / 外周={rule_outer}")
