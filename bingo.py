@@ -137,7 +137,7 @@ def generate_bingo_card_7x7():
 
 # --- 4. メイン画面 ---
 
-st.title("ELDEN RING BINGO (7x7)")
+st.title("ナイトレイン戦技ビンゴ")
 
 # セッション管理
 if "bingo_card" not in st.session_state:
@@ -169,4 +169,5 @@ for r in range(7):
 # 脚注
 st.markdown("---")
 st.caption(f"設定: 中心={rule_center} / 内周={rule_inner} / 中周={rule_middle} / 外周={rule_outer}")
+
 
