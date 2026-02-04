@@ -232,3 +232,4 @@ st.markdown("---")
 # Convert settings
 settings_str = " / ".join([f"{labels[d]}={zone_rules[d]}" for d in range(len(labels))])
 st.caption(f"設定: {settings_str}")
+st.caption("作成: [大弓大好きチャンネル](https://www.youtube.com/@URUFUkamituki)")
